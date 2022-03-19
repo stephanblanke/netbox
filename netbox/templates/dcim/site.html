@@ -245,6 +245,16 @@
               </td>
             </tr>
             <tr>
+              <th scope="row">FHRP Groups</th>
+              <td class="text-end">
+                {% if stats.fhrpgroup_count %}
+                  <a href="{% url 'ipam:fhrpgroup_list' %}?site_id={{ object.pk }}">{{ stats.fhrpgroup_count }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
               <th scope="row">VLANs</th>
               <td class="text-end">
                 {% if stats.vlan_count %}

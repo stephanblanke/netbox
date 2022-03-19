@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
@@ -22,6 +23,35 @@ class FHRPGroup(PrimaryModel):
     """
     group_id = models.PositiveSmallIntegerField(
         verbose_name='Group ID'
+    )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='fhrpgroup',
+        blank=True,
+        null=True
+    )
+    site = models.ForeignKey(
+        to='dcim.Site',
+        on_delete=models.PROTECT,
+        related_name='fhrpgroup',
+        blank=True,
+        null=True
+    )
+    vlan_group = models.ForeignKey(
+        to='ipam.VLANGroup',
+        on_delete=models.PROTECT,
+        related_name='fhrpgroup',
+        blank=True,
+        null=True
+    )
+    vlan = models.ForeignKey(
+        to='ipam.VLAN',
+        on_delete=models.PROTECT,
+        related_name='fhrpgroup',
+        blank=True,
+        null=True,
+        verbose_name='VLAN'
     )
     protocol = models.CharField(
         max_length=50,
@@ -49,7 +79,8 @@ class FHRPGroup(PrimaryModel):
         related_query_name='fhrpgroup'
     )
 
-    clone_fields = ('protocol', 'auth_type', 'auth_key')
+    clone_fields = ('site', 'tenant', 'site', 'vlan_group', 'vlan',
+                    'protocol', 'auth_type', 'auth_key')
 
     class Meta:
         ordering = ['protocol', 'group_id', 'pk']
@@ -68,6 +99,23 @@ class FHRPGroup(PrimaryModel):
 
     def get_absolute_url(self):
         return reverse('ipam:fhrpgroup', args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+        if self.site and self.vlan_group:
+
+            if self.vlan_group.scope != self.site:
+                raise ValidationError({
+                    'vlan_group': f"If a site is assigned, the VLAN group must be assigned to this site."
+                })
+
+        if self.vlan_group and self.vlan:
+
+            if self.vlan.group != self.vlan_group:
+                raise ValidationError({
+                    'vlan': f"If a VLAN group is assigned, the VLAN must be assigned to this VLAN group."
+                })
 
 
 @extras_features('webhooks')

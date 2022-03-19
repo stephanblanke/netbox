@@ -652,7 +652,7 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         return queryset.exclude(assigned_object_id__isnull=value)
 
 
-class FHRPGroupFilterSet(PrimaryModelFilterSet):
+class FHRPGroupFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label='Search',
@@ -666,6 +666,46 @@ class FHRPGroupFilterSet(PrimaryModelFilterSet):
     related_ip = django_filters.ModelMultipleChoiceFilter(
         queryset=IPAddress.objects.all(),
         method='filter_related_ip'
+    )
+    region_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='site__region',
+        lookup_expr='in',
+        label='Region (ID)',
+    )
+    region = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='site__region',
+        lookup_expr='in',
+        to_field_name='slug',
+        label='Region (slug)',
+    )
+    site_group_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='site__group',
+        lookup_expr='in',
+        label='Site group (ID)',
+    )
+    site_group = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='site__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label='Site group (slug)',
+    )
+    site_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Site.objects.all(),
+        label='Site (ID)',
+    )
+    site = django_filters.ModelMultipleChoiceFilter(
+        field_name='site__slug',
+        queryset=Site.objects.all(),
+        to_field_name='slug',
+        label='Site (slug)',
+    )
+    vlan_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=VLAN.objects.all(),
+        label='VLAN (ID)',
     )
     tag = TagFilter()
 

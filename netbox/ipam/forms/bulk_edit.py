@@ -1,6 +1,7 @@
 from django import forms
 
 from dcim.models import Region, Site, SiteGroup
+from tenancy.forms import TenancyForm
 from extras.forms import AddRemoveTagsForm, CustomFieldModelBulkEditForm
 from ipam.choices import *
 from ipam.constants import *
@@ -316,7 +317,7 @@ class IPAddressBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         ]
 
 
-class FHRPGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
+class FHRPGroupBulkEditForm(AddRemoveTagsForm, TenancyForm, CustomFieldModelBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=FHRPGroup.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -346,9 +347,45 @@ class FHRPGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):
         max_length=200,
         required=False
     )
+    region = DynamicModelChoiceField(
+        queryset=Region.objects.all(),
+        required=False
+    )
+    site_group = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False
+    )
+    site = DynamicModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        query_params={
+            'region_id': '$region',
+            'group_id': '$site_group',
+        }
+    )
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
+    vlan_group = DynamicModelChoiceField(
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        label='VLAN Group',
+        query_params={
+            'site_id': '$site',
+        }
+    )
+    vlan = DynamicModelChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        label='VLAN',
+        query_params={
+            'group_id': '$vlan_group'
+        }
+    )
 
     class Meta:
-        nullable_fields = ['auth_type', 'auth_key', 'description']
+        nullable_fields = ['tenant', 'site', 'vlan_group', 'vlan', 'auth_type', 'auth_key', 'description']
 
 
 class VLANGroupBulkEditForm(AddRemoveTagsForm, CustomFieldModelBulkEditForm):

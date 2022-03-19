@@ -1,5 +1,6 @@
 import django_tables2 as tables
 
+from tenancy.tables import TenantColumn
 from utilities.tables import BaseTable, ButtonsColumn, MarkdownColumn, TagColumn, ToggleColumn
 from ipam.models import *
 
@@ -22,6 +23,18 @@ class FHRPGroupTable(BaseTable):
         linkify=True
     )
     comments = MarkdownColumn()
+    tenant = TenantColumn()
+    site = tables.Column(
+        linkify=True
+    )
+    vlan_group = tables.Column(
+        linkify=True,
+        verbose_name='VLAN Group'
+    )
+    vlan = tables.Column(
+        linkify=True,
+        verbose_name='VLAN'
+    )
     ip_addresses = tables.TemplateColumn(
         template_code=IPADDRESSES,
         orderable=False,
@@ -37,7 +50,8 @@ class FHRPGroupTable(BaseTable):
     class Meta(BaseTable.Meta):
         model = FHRPGroup
         fields = (
-            'pk', 'group_id', 'protocol', 'auth_type', 'auth_key', 'description', 'ip_addresses', 'member_count',
+            'pk', 'group_id', 'tenant', 'site', 'vlan_group', 'vlan', 'protocol',
+            'auth_type', 'auth_key', 'description', 'ip_addresses', 'member_count',
             'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'group_id', 'protocol', 'auth_type', 'description', 'ip_addresses', 'member_count')

@@ -320,12 +320,14 @@ class IPAddressFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     tag = TagFilterField(model)
 
 
-class FHRPGroupFilterForm(CustomFieldModelFilterForm):
+class FHRPGroupFilterForm(TenancyFilterForm, CustomFieldModelFilterForm):
     model = FHRPGroup
     field_groups = (
-        ('q', 'tag'),
-        ('protocol', 'group_id'),
-        ('auth_type', 'auth_key'),
+        ['q', 'tag'],
+        ['protocol', 'group_id'],
+        ['auth_type', 'auth_key'],
+        ['region_id', 'site_group_id', 'site_id', 'group_id'],
+        ['tenant_group_id', 'tenant_id'],
     )
     protocol = forms.MultipleChoiceField(
         choices=FHRPGroupProtocolChoices,
@@ -346,6 +348,34 @@ class FHRPGroupFilterForm(CustomFieldModelFilterForm):
     auth_key = forms.CharField(
         required=False,
         label='Authentication key'
+    )
+    region_id = DynamicModelMultipleChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        label=_('Region')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
+    )
+    site_id = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'region_id': '$region_id'
+        },
+        label=_('Site')
+    )
+    group_id = DynamicModelMultipleChoiceField(
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'site': '$site_id'
+        },
+        label=_('VLAN group')
     )
     tag = TagFilterField(model)
 

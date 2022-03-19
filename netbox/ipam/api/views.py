@@ -110,7 +110,7 @@ class IPAddressViewSet(CustomFieldModelViewSet):
 
 
 class FHRPGroupViewSet(CustomFieldModelViewSet):
-    queryset = FHRPGroup.objects.prefetch_related('ip_addresses', 'tags')
+    queryset = FHRPGroup.objects.prefetch_related('ip_addresses', 'tenant', 'site', 'vlan_group', 'vlan', 'tags')
     serializer_class = serializers.FHRPGroupSerializer
     filterset_class = filtersets.FHRPGroupFilterSet
     brief_prefetch_fields = ('ip_addresses',)

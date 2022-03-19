@@ -34,6 +34,49 @@
               <th scope="row">Members</th>
               <td>{{ member_count }}</td>
             </tr>
+            <tr>
+              <th scope="row">Tenant</th>
+              <td>
+                {% if object.tenant %}
+                {% if object.tenant.group %}
+                <a href="{{ object.tenant.group.get_absolute_url }}">{{ object.tenant.group }}</a> /
+                {% endif %}
+                <a href="{{ object.tenant.get_absolute_url }}">{{ object.tenant }}</a>
+                {% else %}
+                <span class="text-muted">None</span>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Site</th>
+              <td>
+                {% if object.site %}
+                {% if object.site.region %}
+                <a href="{{ object.site.region.get_absolute_url }}">{{ object.site.region }}</a> /
+                {% endif %}
+                <a href="{{ object.site.get_absolute_url }}">{{ object.site }}</a>
+                {% else %}
+                <span class="text-muted">None</span>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">VLAN Group / VLAN</th>
+              <td>
+                {% if object.vlan %}
+                {% if object.vlan.group %}
+                <a href="{{ object.vlan.group.get_absolute_url }}">{{ object.vlan.group }}</a> /
+                {% endif %}
+                <a href="{% url 'ipam:vlan' pk=object.vlan.pk %}">{{ object.vlan }}</a>
+                {% else %}
+                {% if object.vlan_group %}
+                <a href="{{ object.vlan_group.get_absolute_url }}">{{ object.vlan_group }}</a> / <span class="text-muted">None</span>
+                {% else %}
+                <span class="text-muted">None</span>
+                {% endif %}
+                {% endif %}
+              </td>
+            </tr>
           </table>
         </div>
       </div>

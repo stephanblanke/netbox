@@ -319,10 +319,48 @@ class FHRPGroupCSVForm(CustomFieldModelCSVForm):
         choices=FHRPGroupAuthTypeChoices,
         required=False
     )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned tenant'
+    )
+    site = CSVModelChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text='Assigned site'
+    )
+    vlan_group = CSVModelChoiceField(
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text="VLAN's group (if any)"
+    )
+    vlan = CSVModelChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        to_field_name='vid',
+        help_text="Assigned VLAN"
+    )
 
     class Meta:
         model = FHRPGroup
-        fields = ('protocol', 'group_id', 'auth_type', 'auth_key', 'description')
+        fields = ('protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'tenant', 'site', 'vlan_group', 'vlan')
+
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+
+            # Limit FHRPGroup queryset by assigned site and/or group and/or vlan (if specified)
+            params = {}
+            if data.get('site'):
+                params[f"site__{self.fields['site'].to_field_name}"] = data.get('site')
+            if data.get('vlan_group'):
+                params[f"group__{self.fields['vlan_group'].to_field_name}"] = data.get('vlan_group')
+            if params:
+                self.fields['vlan'].queryset = self.fields['vlan'].queryset.filter(**params)
 
 
 class VLANGroupCSVForm(CustomFieldModelCSVForm):

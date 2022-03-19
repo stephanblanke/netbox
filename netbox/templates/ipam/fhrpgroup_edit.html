@@ -31,6 +31,25 @@
     </div>
   {% endif %}
 
+  <div class="field-group my-5">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Site/VLAN Assignment</h5>
+    </div>
+    {% render_field form.region %}
+    {% render_field form.site_group %}
+    {% render_field form.site %}
+    {% render_field form.vlan_group %}
+    {% render_field form.vlan %}
+  </div>
+
+  <div class="field-group my-5">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Tenancy</h5>
+    </div>
+    {% render_field form.tenant_group %}
+    {% render_field form.tenant %}
+  </div>
+
   {% if form.custom_fields %}
     <div class="row mb-2">
       <h5 class="offset-sm-3">Custom Fields</h5>
